@@ -8,14 +8,14 @@
 //########################################
 
 $dir_path = "./";  //This is for the directory the backup.php lies in.
-$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // Change this to your actual password as an MD5 hash
+$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // Change this to your actual password as an MD5 hash, default is 12345
 
 //Database conf, if you want them permanent
 
 $set_dbhost = '127.0.0.1';
-$set_dbname = "neo";
-$set_dbuser = "root";
-$set_dbpass = "";
+$set_dbname = "db_name";
+$set_dbuser = "db_user";
+$set_dbpass = "db_pass";
 
 //########################################
 
