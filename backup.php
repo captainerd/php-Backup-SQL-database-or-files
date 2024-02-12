@@ -73,12 +73,13 @@ function unzipFile($zipFile)
 
 // Handle unzip action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['zip_file'])) {
+    preventUnAuthorized();
     $selectedZipFile = $_POST['zip_file'];
     unzipFile($selectedZipFile);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
-
+    preventUnAuthorized();
     // Backup SQL
     $db_host = $_POST['db_host'];
     $db_user = $_POST['db_user'];
@@ -98,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
 
 
 } elseif (isset($_POST['full_backup'])) {
+    preventUnAuthorized();
     $db_host = $_POST['db_host'];
     $db_user = $_POST['db_user'];
     $db_pass = $_POST['db_pass'];
