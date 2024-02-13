@@ -1,14 +1,12 @@
 <?php
-// This file intends to provide functionality for unzipping, zipping, and backing up your files.
-// Download a .SQL file of your whole site, or the whole site including the file.sql in a big zip file
-// or unzip uploaded zip files. to make it easier to backup a stack and upload/restore.
 
 //Config 
 
 //########################################
 
+$registerNew = true;  //Turn this to false if you dont want to register a new password
 $dir_path = "./";  //This is for the directory the backup.php lies in.
-$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // Change this to your actual password as an MD5 hash, default is 12345
+$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // Change this to your actual password as an MD5 hash
 
 //Database conf, if you want them permanent
 
@@ -20,23 +18,38 @@ $set_dbpass = "db_pass";
 //########################################
 
 
+if (isset($_POST['newpassword']) && !empty($_POST['newpassword']) && $registerNew == true) {
+     
+$newpass = md5($_POST['newpassword']);
+$backupFile = file_get_contents(".".$_SERVER['PHP_SELF']);
+$backupFile = str_replace($correct_password, $newpass, $backupFile);
+$backupFile = str_replace('$registerNew = false;', '$registerNew = false;', $backupFile);
+file_put_contents(".".  $_SERVER['PHP_SELF'].".tmp", $backupFile);
+unlink(".".  $_SERVER['PHP_SELF']);
+rename(".".  $_SERVER['PHP_SELF'].".tmp",".".  $_SERVER['PHP_SELF'] );
+$registerNew = false; 
+} 
+
 
 session_start();
-function logout() {
-$_SESSION = array();
+function logout()
+{
+    $_SESSION = array();
 
-// Destroy the session
-session_destroy();
+    // Destroy the session
+    session_destroy();
 }
 
-function preventUnAuthorized() {
+function preventUnAuthorized()
+{
     if (!authorizeLogggedIn()) {
         die("Unauthorized action");
     }
 }
-function authorizeLogggedIn() {
+function authorizeLogggedIn()
+{
     global $correct_password;
-    if (isset( $_SESSION['backup_logged_in']) &&  $_SESSION['backup_logged_in'] === $correct_password) {
+    if (isset($_SESSION['backup_logged_in']) && $_SESSION['backup_logged_in'] === $correct_password) {
         return true;
     } else {
         return false;
@@ -45,16 +58,16 @@ function authorizeLogggedIn() {
 
 if (isset($_GET["logout"]) && $_GET["logout"] == 1) {
     logout();
-    header("Location: /");
+    header("Location: " . $_SERVER['PHP_SELF']);
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if the password is correct (you need to define your own password)
-  
-    
+
+
     if (isset($_POST["password"]) && !$_SESSION['backup_logged_in'] && md5($_POST["password"]) == $correct_password) {
         // Password is correct, set backup_logged_in session variable
         $_SESSION['backup_logged_in'] = $correct_password;
-    }  
+    }
 }
 function unzipFile($zipFile)
 {
@@ -88,11 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
 
     $filename = doSqlBackup($db_host, $db_user, $db_pass, $db_name);
 
-    header("Content-type: application/zip"); 
+    header("Content-type: application/zip");
     header("Content-Disposition: attachment; filename=$filename");
     header("Content-length: " . filesize($filename));
-    header("Pragma: no-cache"); 
-    header("Expires: 0"); 
+    header("Pragma: no-cache");
+    header("Expires: 0");
     readfile($filename);
     unlink($filename);
 
@@ -105,14 +118,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
     $db_pass = $_POST['db_pass'];
     $db_name = $_POST['db_name'];
     $rootPath = realpath($dir_path);
- 
+
     $sqlfile = doSqlBackup($db_host, $db_user, $db_pass, $db_name);
     $archive_file_name = "backup-" . time() . ".zip";
 
     // Initialize archive object
     $zip = new ZipArchive();
     $zip->open($archive_file_name, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-  
+
     // Create recursive directory iterator
     /** @var SplFileInfo[] $files */
     $files = new RecursiveIteratorIterator(
@@ -132,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
         }
     }
     $zip->close();
-   
+
     header("Content-type: application/zip");
     header("Content-Disposition: attachment; filename=$archive_file_name");
     header("Content-length: " . filesize($archive_file_name));
@@ -140,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
     header("Expires: 0");
     readfile($archive_file_name);
     unlink($sqlfile);
-  
+
     unlink($archive_file_name);
 
     exit;
@@ -201,6 +214,7 @@ function doSqlBackup($host, $user, $pass, $dbname)
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -211,6 +225,7 @@ function doSqlBackup($host, $user, $pass, $dbname)
         /* Custom styles can be added here */
     </style>
 </head>
+
 <body>
     <header>
         <nav class="navbar navbar-dark bg-dark">
@@ -223,96 +238,123 @@ function doSqlBackup($host, $user, $pass, $dbname)
         </nav>
     </header>
 
-        <div class="container mt-5">
-            <?php if (!authorizeLogggedIn()): ?>
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
+    <div class="container mt-5">
+        <?php if (!authorizeLogggedIn()): ?>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <?php if (!$registerNew): ?>
+                        <!-- Login form -->
                         <div class="card">
-                            <div class="card-header">Login</div>
+                            <div class="card-header"><i class="fas fa-sign-in-alt"></i> Login</div>
                             <div class="card-body">
                                 <form method="post">
                                     <div class="form-group">
                                         <label for="password">Password:</label>
                                         <input type="password" name="password" id="password" class="form-control" required>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Login</button>
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
                                 </form>
                             </div>
                         </div>
-                    </div>
-                </div>
-        <?php else: ?>
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
-                        <div class="card mt-3">
-                            <div class="card-header"><i class="fas fa-cloud-upload-alt"></i> Backup</div>
+                    <?php else: ?>
+                        <!-- Register form -->
+
+                        <div class="card">
+                            <div class="card-header"><i class="fas fa-user-plus"></i> Register</div>
                             <div class="card-body">
-                                <form
-                                    method="post">
-                                    <!-- Database Credentials -->
+                                <form method="post">
                                     <div class="form-group">
-                                        <label for="db_host">Database Host:</label>
-                                        <input type="text" name="db_host"   value="<?=$set_dbhost?>" id="db_host" class="form-control" required>
+                                        <label for="password">New Password:</label>
+                                        <input type="password" name="newpassword" id="password" class="form-control" required>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="db_user">Database Username:</label>
-                                        <input type="text" name="db_user" id="db_user" value="<?=$set_dbuser ?>" class="form-control" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="db_pass">Database Password:</label>
-                                        <input type="password" name="db_pass" value="<?=$set_dbpass ?>"  id="db_pass" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="db_name">Database Name:</label>
-                                        <input type="text" name="db_name" value="<?=$set_dbname ?>" id="db_name" class="form-control" required>
-                                    </div>
-                                    <!-- Backup Options -->
-                                    <button type="submit" name="mysql" class="btn btn-success"><i class="fas fa-database"></i> Backup SQL file</button>
-                                    <button type="submit" name="full_backup" onclick="javascript:alert('Wait, It may take some time')" class="btn btn-success"><i class="fas fa-cloud-upload-alt"></i> Backup all files+SQL</button>
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</button>
                                 </form>
                             </div>
                         </div>
 
-                        <div class="card mt-3">
-                            <div class="card-header"><i class="fas fa-file-archive"></i> Unzip</div>
-                            <div class="card-body">
-                                <form method="post">
+
+                    <?php endif; ?>
+
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card mt-3">
+                        <div class="card-header"><i class="fas fa-cloud-upload-alt"></i> Backup</div>
+                        <div class="card-body">
+                            <form method="post">
+                                <!-- Database Credentials -->
+                                <div class="form-group">
+                                    <label for="db_host">Database Host:</label>
+                                    <input type="text" name="db_host" value="<?= $set_dbhost ?>" id="db_host"
+                                        class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="db_user">Database Username:</label>
+                                    <input type="text" name="db_user" id="db_user" value="<?= $set_dbuser ?>"
+                                        class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="db_pass">Database Password:</label>
+                                    <input type="password" name="db_pass" value="<?= $set_dbpass ?>" id="db_pass"
+                                        class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="db_name">Database Name:</label>
+                                    <input type="text" name="db_name" value="<?= $set_dbname ?>" id="db_name"
+                                        class="form-control" required>
+                                </div>
+                                <!-- Backup Options -->
+                                <button type="submit" name="mysql" class="btn btn-success"><i class="fas fa-database"></i>
+                                    Backup SQL file</button>
+                                <button type="submit" name="full_backup"
+                                    onclick="javascript:alert('Wait, It may take some time')" class="btn btn-success"><i
+                                        class="fas fa-cloud-upload-alt"></i> Backup all files+SQL</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header"><i class="fas fa-file-archive"></i> Unzip</div>
+                        <div class="card-body">
+                            <form method="post">
                                 <?php
-                                    
-                                    $zip_files = glob('*.zip');
-                                    if (count($zip_files) > 0):?>
+
+                                $zip_files = glob('*.zip');
+                                if (count($zip_files) > 0): ?>
                                     <div class="form-group">
-                        
+
                                         <label for="zip_file">Select ZIP file to Unzip:</label>
-                                      
+
                                         <select name="zip_file" id="zip_file" class="form-control">
                                             <?php
-                                       
+
                                             foreach ($zip_files as $file) {
                                                 echo "<option value=\"$file\">$file</option>";
                                             }
                                             ?>
                                         </select>
-                                    
-                                 
-                                     
+
+
+
                                     </div>
-                                    <button type="submit" class="btn btn-primary"><i class="fas fa-file-archive"></i> Unzip</button>
-                                    <?php else:?>
-                                            <p>No zip files found in the root directory</p>
-                                    <?php endif;?> 
-                                </form>
-                            </div>
+                                    <button type="submit" class="btn btn-primary"><i class="fas fa-file-archive"></i>
+                                        Unzip</button>
+                                <?php else: ?>
+                                    <p>No zip files found in the root directory</p>
+                                <?php endif; ?>
+                            </form>
                         </div>
                     </div>
                 </div>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
+    </div>
 
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-</html>
- 
 
+</html>
