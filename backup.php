@@ -23,11 +23,16 @@ if (isset($_POST['newpassword']) && !empty($_POST['newpassword']) && $registerNe
 $newpass = md5($_POST['newpassword']);
 $backupFile = file_get_contents(".".$_SERVER['PHP_SELF']);
 $backupFile = str_replace($correct_password, $newpass, $backupFile);
-$backupFile = str_replace('$registerNew = false;', '$registerNew = false;', $backupFile);
+$backupFile = preg_replace('/\$registerNew = true;/', '$registerNew = false;', $backupFile, 1);
 file_put_contents(".".  $_SERVER['PHP_SELF'].".tmp", $backupFile);
-unlink(".".  $_SERVER['PHP_SELF']);
-rename(".".  $_SERVER['PHP_SELF'].".tmp",".".  $_SERVER['PHP_SELF'] );
-$registerNew = false; 
+if (unlink(".".  $_SERVER['PHP_SELF']) && rename(".".  $_SERVER['PHP_SELF'].".tmp",".".  $_SERVER['PHP_SELF'] )) {
+    $registerNew = false; 
+} else {
+    echo '<div class="alert alert-success" role="alert">Failed to register, check file permissions</div>';
+}
+
+
+ 
 } 
 
 
