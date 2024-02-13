@@ -18,7 +18,7 @@ $set_dbpass = "db_pass";
 //########################################
 
 
-if (isset($_POST['newpassword']) && !empty($_POST['newpassword']) && $registerNew == true) {
+if (!empty($_POST['newpassword']) && $registerNew == true) {
      
 $newpass = md5($_POST['newpassword']);
 $backupFile = file_get_contents(".".$_SERVER['PHP_SELF']);
