@@ -6,7 +6,7 @@
 
 $registerNew = true;  //Turn this to false if you dont want to register a new password
 $dir_path = "./";  //This is for the directory the backup.php lies in.
-$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // Hash for 12345. Change this to your actual password as an MD5 hash
+$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // pass=12345. Change this to your actual password as an MD5 hash
 
 //Database conf, if you want them permanent
 
@@ -85,7 +85,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Password is correct, set backup_logged_in session variable
         $_SESSION['backup_logged_in'] = $correct_password;
     } else {
-        echo '<div class="alert alert-danger" role="alert">Wrong password.</div>';
+        if (isset($_POST["password"])) {
+             echo '<div class="alert alert-danger" role="alert">Wrong password.</div>';
+        }
     }
 }
 function unzipFile($zipFile)
@@ -340,6 +342,7 @@ function doSqlBackup($host, $user, $pass, $dbname)
     return $backup_file_name;
 
 }
+if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
 if (!empty($_GET['error'])) {
 
     echo '<div class="alert alert-danger" role="alert">' . $_GET['error'] . '</div>';
@@ -348,7 +351,7 @@ if (!empty($_GET['success'])) {
 
     echo '<div class="alert alert-success" role="alert">' . $_GET['success'] . '</div>';
 }
-
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
