@@ -30,11 +30,7 @@ if (!empty($_POST['newpassword']) && $registerNew == true) {
     } else {
         echo '<div class="alert alert-success" role="alert">Failed to register, check file permissions</div>';
     }
-
-
-
 }
-
 
 session_start();
 
@@ -80,8 +76,6 @@ if (isset($_GET["logout"]) && $_GET["logout"] == 1) {
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if the password is correct (you need to define your own password)
-
-
     if (isset($_POST["password"]) && !$_SESSION['backup_logged_in'] && md5($_POST["password"]) == $correct_password) {
         // Password is correct, set backup_logged_in session variable
         $_SESSION['backup_logged_in'] = $correct_password;
@@ -93,10 +87,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 function unzipFile($zipFile)
 {
+    global $dir_path;
     preventUnAuthorized();
     $zip = new ZipArchive;
     if ($zip->open($zipFile) === TRUE) {
-        $zip->extractTo('./'); // Extract to the current directory
+        $zip->extractTo($dir_path); 
         $zip->close();
         echo '<div class="alert alert-success" role="alert">File unzipped successfully!</div>';
     } else {
@@ -297,8 +292,6 @@ function doSqlBackup($host, $user, $pass, $dbname)
             header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . $conn->connect_error);
             exit;
         }
-
-        // Continue with your code here
     } catch (Exception $e) {
 
         header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . urlencode($e->getMessage()));
@@ -313,7 +306,6 @@ function doSqlBackup($host, $user, $pass, $dbname)
     while ($row = $query->fetch_row()) {
         $tables[] = $row[0];
     }
-
 
     foreach ($tables as $table) {
         $outsql .= "DROP TABLE IF EXISTS `$table`;\n";
@@ -370,7 +362,6 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
         }
         .content-wrap {
             min-height: 100%;
-            /* Equal to the footer height */
             margin-bottom: -100px;
         }
         .footer {
@@ -504,9 +495,6 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                                             }
                                             ?>
                                         </select>
-
-
-
                                     </div>
                                     <button type="submit" class="btn btn-primary"><i class="fas fa-file-archive"></i>
                                         Unzip</button>
@@ -516,7 +504,6 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                             </form>
                         </div>
                     </div>
-
 
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-database"></i> SQL Import</div>
