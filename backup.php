@@ -37,6 +37,7 @@ if (!empty($_POST['newpassword']) && $registerNew == true) {
 
 
 session_start();
+
 function logout()
 {
     $_SESSION = array();
@@ -406,7 +407,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                         <div class="card">
                             <div class="card-header"><i class="fas fa-sign-in-alt"></i> Login</div>
                             <div class="card-body">
-                                <form method="post">
+                                <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
                                     <div class="form-group">
                                         <label for="password">Password:</label>
                                         <input type="password" name="password" id="password" class="form-control" required>
@@ -422,7 +423,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                         <div class="card">
                             <div class="card-header"><i class="fas fa-user-plus"></i> Register</div>
                             <div class="card-body">
-                                <form method="post">
+                                <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
                                     <div class="form-group">
                                         <label for="password">New Password:</label>
                                         <input type="password" name="newpassword" id="password" class="form-control" required>
@@ -444,7 +445,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-cloud-upload-alt"></i> Backup</div>
                         <div class="card-body">
-                            <form method="post">
+                            <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
                                 <!-- Database Credentials -->
                                 <div class="form-group">
                                     <label for="db_host">Database Host:</label>
@@ -486,7 +487,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-file-archive"></i> Unzip</div>
                         <div class="card-body">
-                            <form method="post">
+                            <form  action="<?= $_SERVER['PHP_SELF']?>"  method="post">
                                 <?php
 
                                 $zip_files = glob('*.zip');
@@ -520,7 +521,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-database"></i> SQL Import</div>
                         <div class="card-body">
-                            <form method="post">
+                            <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
                                 <?php
 
                                 $sql_files = glob('*.sql');
@@ -559,7 +560,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
 
                         <div class="card-header"><i class="fas fa-upload"></i> Upload</div>
                         <div class="card-body">
-                            <form method="post" enctype="multipart/form-data">
+                            <form action="<?= $_SERVER['PHP_SELF']?>" method="post" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="file">Choose File:</label>
                                     <input type="file" name="file" id="file" class="form-control-file">
