@@ -6,7 +6,7 @@
 
 $registerNew = true;  //Turn this to false if you dont want to register a new password
 $dir_path = "./";  //This is for the directory the backup.php lies in.
-$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // pass=12345. Change this to your actual password as an MD5 hash
+$correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // pass=12345, Change this to your actual password as an MD5 hash
 
 //Database conf, if you want them permanent
 
@@ -16,7 +16,7 @@ $set_dbuser = "db_user";
 $set_dbpass = "db_pass";
 
 //########################################
- 
+
 
 if (!empty($_POST['newpassword']) && $registerNew == true) {
 
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['backup_logged_in'] = $correct_password;
     } else {
         if (isset($_POST["password"])) {
-             echo '<div class="alert alert-danger" role="alert">Wrong password.</div>';
+            echo '<div class="alert alert-danger" role="alert">Wrong password.</div>';
         }
     }
 }
@@ -132,9 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
     $_SESSION['set_dbuser'] = $db_user;
     $_SESSION['set_dbpass'] = $db_pass;
     $_SESSION['set_dbname'] = $db_name;
-  
+
     $filename = doSqlBackup($db_host, $db_user, $db_pass, $db_name);
-  
+
     header("Content-type: application/zip");
     header("Content-Disposition: attachment; filename=$filename");
     header("Content-length: " . filesize($filename));
@@ -206,20 +206,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
         $db_name = $_POST['db_name'];
         $dbConnection = new mysqli($db_host, $db_user, $db_pass, $db_name);
     } catch (Exception $e) {
-      
-      header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . $e->getMessage());
+
+        header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . $e->getMessage());
         exit;
     }
- 
+
     $_SESSION['set_dbhost'] = $db_host;
     $_SESSION['set_dbuser'] = $db_user;
     $_SESSION['set_dbpass'] = $db_pass;
     $_SESSION['set_dbname'] = $db_name;
-    $_SESSION['db_connection'] = true; 
+    $_SESSION['db_connection'] = true;
     header("Location: " . $_SERVER['PHP_SELF'] . "?success=Connected to Database ");
 
 }
- 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["file"])) {
     preventUnAuthorized();
 
@@ -245,8 +245,8 @@ function doSqlImport($sqlFile, $disable_foreign)
     try {
         $dbConnection = new mysqli($set_dbhost, $set_dbuser, $set_dbpass, $set_dbname);
     } catch (Exception $e) {
-      
-      header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . urlencode($e->getMessage()));
+
+        header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . urlencode($e->getMessage()));
         exit;
     }
     if ($disable_foreign) {
@@ -264,21 +264,21 @@ function doSqlImport($sqlFile, $disable_foreign)
         $query = $query . $line;
         if ($endWith == ';') {
             try {
-            $result = mysqli_query($dbConnection, $query);
-            if (!$result) {
-                 header("Location: " . $_SERVER['PHP_SELF'] . "?error='Error  : " . mysqli_error($dbConnection));
+                $result = mysqli_query($dbConnection, $query);
+                if (!$result) {
+                    header("Location: " . $_SERVER['PHP_SELF'] . "?error='Error  : " . mysqli_error($dbConnection));
+                    exit;
+                }
+            } catch (Exception $e) {
+
+                header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . urlencode($e->getMessage()));
                 exit;
             }
-        } catch (Exception $e) {
-      
-            header("Location: " . $_SERVER['PHP_SELF'] . "?error=Connection failed: " . urlencode($e->getMessage()));
-              exit;
-          }
             $query = '';
         }
     }
     mysqli_close($dbConnection);
-   header("Location: " . $_SERVER['PHP_SELF'] . "?success=Database imported");
+    header("Location: " . $_SERVER['PHP_SELF'] . "?success=Database imported");
     exit;
 
 }
@@ -343,14 +343,14 @@ function doSqlBackup($host, $user, $pass, $dbname)
 
 }
 if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
-if (!empty($_GET['error'])) {
+    if (!empty($_GET['error'])) {
 
-    echo '<div class="alert alert-danger" role="alert">' . $_GET['error'] . '</div>';
-}
-if (!empty($_GET['success'])) {
+        echo '<div class="alert alert-danger" role="alert">' . $_GET['error'] . '</div>';
+    }
+    if (!empty($_GET['success'])) {
 
-    echo '<div class="alert alert-success" role="alert">' . $_GET['success'] . '</div>';
-}
+        echo '<div class="alert alert-success" role="alert">' . $_GET['success'] . '</div>';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -363,17 +363,25 @@ if (!empty($_GET['success'])) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-         html, body {
-      height: 100%;
-    }
-    .content-wrap {
-      min-height: 100%;
-      /* Equal to the footer height */
-      margin-bottom: -100px; 
-    }
-    .footer {
-      height: 100px;
-    }
+        html,
+        body {
+            height: 100%;
+        }
+        .content-wrap {
+            min-height: 100%;
+            /* Equal to the footer height */
+            margin-bottom: -100px;
+        }
+        .footer {
+            height: 100px;
+        }
+        .alert {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            z-index: 1000;
+        }
     </style>
 </head>
 
@@ -461,7 +469,7 @@ if (!empty($_GET['success'])) {
                                 <button type="submit" name="connect" class="btn mb-1 btn-primary"><i
                                         class="fas fa-database"></i>
                                     Connect</button>
-                                    <hr>
+                                <hr>
                                 <!-- Backup Options -->
                                 <button type="submit" name="mysql" class="btn mb-1 btn-success"><i
                                         class="fas fa-database"></i>
@@ -531,11 +539,12 @@ if (!empty($_GET['success'])) {
                                         </select>
                                     </div>
                                     <div class="form-check">
-  <input class="form-check-input" type="checkbox" checked name="disableforeginkey" id="foreginkey">
-  <label class="form-check-label mb-2" for="foreginkey">
-  Disable Foreign Key Constraints 
-  </label>
-</div>
+                                        <input class="form-check-input" type="checkbox" checked name="disableforeginkey"
+                                            id="foreginkey">
+                                        <label class="form-check-label mb-2" for="foreginkey">
+                                            Disable Foreign Key Constraints
+                                        </label>
+                                    </div>
 
                                     <button type="submit" class="btn btn-primary"><i class="fas fa-database"></i>
                                         Import</button>
@@ -565,24 +574,27 @@ if (!empty($_GET['success'])) {
             </div>
         <?php endif; ?>
     </div>
-                                </br></br>
+    </br></br>
     <footer class="footer mt-5 bg-dark py-3">
-  <div class="container">
-    <span class="text-muted">PHP BackUp Helper v1 <a href="https://github.com/captainerd" target="_blank">Captainerd</a> - <a href="https://github.com/captainerd/Backup-SQL-database-or-files" target="_blank">Backup-SQL-database-or-files repository</a></span>
-  </div>
-</footer>
+        <div class="container">
+            <span class="text-muted">PHP BackUp Helper v1 <a href="https://github.com/captainerd"
+                    target="_blank">Captainerd</a> - <a
+                    href="https://github.com/captainerd/Backup-SQL-database-or-files"
+                    target="_blank">Backup-SQL-database-or-files repository</a></span>
+        </div>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
- 
-<script>
 
-setTimeout(() => {
-    $(".alert").hide();
-}, 4000);
+    <script>
 
-</script>
+        setTimeout(() => {
+            $(".alert").hide();
+        }, 4000);
+
+    </script>
 </body>
 
 
