@@ -1,8 +1,23 @@
 # phpbackup
-A Simple script to backup - download, both SQL and all PHP Files as one zip.
 
-- Set up an MD5 Hash password to login. default has is for password "12345" 
-- Configure default sql credentials if you need them pre-filled in the from, or ignore that step otherwise.
-- Upload the backup.php into the root visit site/backup.php and login.
+**phpbackup** is a simple PHP script to help you easily upload and manage backups. It allows you to:
 
-Thats all.
+- Upload and unzip a backup ZIP file, optionally including an SQL file.
+- Create a backup ZIP containing all PHP files and an optional SQL dump.
+
+## Features
+- Set an MD5 hash password for login (default: `12345`).
+- Optionally configure default SQL credentials (or leave them blank).
+- Upload `backup.php` to your root directory.
+- Access the script by visiting `yourdomain.com/backup.php` and log in.
+
+## Setup
+1. Upload `backup.php` to your server's root directory.
+2. Configure the script:
+   - Set the password in the script (default is `12345`).
+   - If needed, configure your SQL credentials.
+3. Navigate to `yourdomain.com/backup.php` in your browser.
+4. Log in and start managing your backups.
+
+That's it! Enjoy seamless backup management.
+
