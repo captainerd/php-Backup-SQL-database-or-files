@@ -4,7 +4,7 @@
 
 //########################################
 
-$registerNew = true;  //Turn this to false if you dont want to register a new password
+$registerNew = false;  //Turn this to false if you dont want to register a new password
 $dir_path = "./";  //This is for the directory the backup.php lies in.
 $correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // pass=12345, Change this to your actual password as an MD5 hash
 
@@ -91,7 +91,7 @@ function unzipFile($zipFile)
     preventUnAuthorized();
     $zip = new ZipArchive;
     if ($zip->open($zipFile) === TRUE) {
-        $zip->extractTo($dir_path); 
+        $zip->extractTo($dir_path);
         $zip->close();
         echo '<div class="alert alert-success" role="alert">File unzipped successfully!</div>';
     } else {
@@ -154,33 +154,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mysql'])) {
     $_SESSION['set_dbname'] = $db_name;
 
     $rootPath = realpath($dir_path);
-
     $sqlfile = doSqlBackup($db_host, $db_user, $db_pass, $db_name);
-    $archive_file_name = "backup-" . time() . ".zip";
+    $archive_file_name = "./backup-" . time() . ".zip";
 
-    // Initialize archive object
     $zip = new ZipArchive();
-    $zip->open($archive_file_name, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    if ($zip->open($archive_file_name, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+        throw new RuntimeException("Cannot open <$archive_file_name>");
+    }
 
-    // Create recursive directory iterator
-    /** @var SplFileInfo[] $files */
-    $files = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($rootPath),
-        RecursiveIteratorIterator::LEAVES_ONLY
-    );
+    function addFilesToZip($path, $zip, $rootPath)
+    {
+        $files = scandir($path);
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..')
+                continue;
 
-    foreach ($files as $name => $file) {
-        // Skip directories (they would be added automatically)
-        if (!$file->isDir()) {
-            // Get real and relative path for current file
-            $filePath = $file->getRealPath();
+            $filePath = $path . DIRECTORY_SEPARATOR . $file;
             $relativePath = substr($filePath, strlen($rootPath) + 1);
 
-            // Add current file to archive
-            $zip->addFile($filePath, $relativePath);
+            if (is_dir($filePath)) {
+                addFilesToZip($filePath, $zip, $rootPath);
+            } else {
+                $zip->addFile($filePath, $relativePath);
+            }
         }
     }
+
+    addFilesToZip($rootPath, $zip, $rootPath);
+
     $zip->close();
+
 
     header("Content-type: application/zip");
     header("Content-Disposition: attachment; filename=$archive_file_name");
@@ -360,13 +363,16 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
         body {
             height: 100%;
         }
+
         .content-wrap {
             min-height: 100%;
             margin-bottom: -100px;
         }
+
         .footer {
             height: 100px;
         }
+
         .alert {
             position: absolute;
             top: 30px;
@@ -398,7 +404,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                         <div class="card">
                             <div class="card-header"><i class="fas fa-sign-in-alt"></i> Login</div>
                             <div class="card-body">
-                                <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
+                                <form action="<?= $_SERVER['PHP_SELF'] ?>" method="post">
                                     <div class="form-group">
                                         <label for="password">Password:</label>
                                         <input type="password" name="password" id="password" class="form-control" required>
@@ -414,7 +420,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                         <div class="card">
                             <div class="card-header"><i class="fas fa-user-plus"></i> Register</div>
                             <div class="card-body">
-                                <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
+                                <form action="<?= $_SERVER['PHP_SELF'] ?>" method="post">
                                     <div class="form-group">
                                         <label for="password">New Password:</label>
                                         <input type="password" name="newpassword" id="password" class="form-control" required>
@@ -436,7 +442,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-cloud-upload-alt"></i> Backup</div>
                         <div class="card-body">
-                            <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
+                            <form action="<?= $_SERVER['PHP_SELF'] ?>" method="post">
                                 <!-- Database Credentials -->
                                 <div class="form-group">
                                     <label for="db_host">Database Host:</label>
@@ -478,7 +484,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-file-archive"></i> Unzip</div>
                         <div class="card-body">
-                            <form  action="<?= $_SERVER['PHP_SELF']?>"  method="post">
+                            <form action="<?= $_SERVER['PHP_SELF'] ?>" method="post">
                                 <?php
 
                                 $zip_files = glob('*.zip');
@@ -508,7 +514,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
                     <div class="card mt-3">
                         <div class="card-header"><i class="fas fa-database"></i> SQL Import</div>
                         <div class="card-body">
-                            <form action="<?= $_SERVER['PHP_SELF']?>" method="post">
+                            <form action="<?= $_SERVER['PHP_SELF'] ?>" method="post">
                                 <?php
 
                                 $sql_files = glob('*.sql');
@@ -547,7 +553,7 @@ if (!isset($_POST['full_backup']) && !isset($_POST['mysql'])) {
 
                         <div class="card-header"><i class="fas fa-upload"></i> Upload</div>
                         <div class="card-body">
-                            <form action="<?= $_SERVER['PHP_SELF']?>" method="post" enctype="multipart/form-data">
+                            <form action="<?= $_SERVER['PHP_SELF'] ?>" method="post" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label for="file">Choose File:</label>
                                     <input type="file" name="file" id="file" class="form-control-file">
