@@ -4,7 +4,7 @@
 
 //########################################
 
-$registerNew = false;  //Turn this to false if you dont want to register a new password
+$registerNew = true;  //Turn this to false if you dont want to register a new password
 $dir_path = "./";  //This is for the directory the backup.php lies in.
 $correct_password = "827ccb0eea8a706c4c34a16891f84e7b"; // pass=12345, Change this to your actual password as an MD5 hash
 
